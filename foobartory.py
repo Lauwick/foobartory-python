@@ -26,14 +26,20 @@ def init_foobar(storage, *args, **kwargs):
     return storage.foo.pop(), storage.bar.pop()
 
 def create_foobar(storage, foo, bar):
-    storage.foobar.append(Foobar(foo.foo_id, bar.bar_id)) 
+    if random.randint(1, 100) <= 60:
+        storage.foobar.append(Foobar(foo.foo_id, bar.bar_id)) 
+    else:
+        storage.bar.append(bar)
 
 def init_sell(storage):
-    storage.foobar.pop()
-    return []
+    foobars = list()
+    while 0 < len(storage.foobar) <= 5:
+        foobars.append(storage.foobar.pop())
+    return foobars 
 
-def sell_foobar(storage, *args, **kwargs):
-    storage.currency += 10
+def sell_foobar(storage, *foobars, **kwargs):
+    for foobar in foobars:
+        storage.currency += 1
 
 def init_buy(storage):
     storage.currency -= 3
@@ -50,6 +56,7 @@ TASKS = [
     Task('creating foobar', (2, 2), init_foobar, create_foobar),
     Task('selling', (10, 10), init_sell, sell_foobar),
     Task('buying', (0, 0), init_buy, buy_robot),
+    Task('moving', (5, 5), do_nothing, do_nothing),
 ]
 
 class Robot():
@@ -65,7 +72,7 @@ class Robot():
         self.resources = None
 
     def choose_task(self):
-        weights = [30,15,40,1,20]
+        weights = [30,10,40,30,50,0]
         if not self.storage.foo or not self.storage.bar:
             weights[2] = 0
         if not self.storage.foobar:
@@ -91,11 +98,15 @@ class Robot():
     def complete_task(self):
         self.current_task.result(self.storage, *self.resources)
         print(f'{self.name} finished {self.current_task.name} after {round(self.work_time, 1)}s')
-        self.current_task = None
-        self.work_time = 0
+        if self.current_task != TASKS[-1]:
+            self.current_task = TASKS[-1]
+        else:
+            self.current_task = None
+        self.work_time = 5
         self.task_time = 0
         print(f'Current storage: Currency:{self.storage.currency}, Foo:{len(self.storage.foo)}, '\
-                f'Bar:{len(self.storage.bar)}, Robots:{len(self.storage.robots)}')
+                f'Bar:{len(self.storage.bar)}, Foobar:{len(self.storage.foobar)}, '\
+                f'Robots:{len(self.storage.robots)}')
 
 @dataclass
 class Storage:
