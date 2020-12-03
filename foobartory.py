@@ -90,8 +90,10 @@ class Robot():
 
     def complete(self):
         self.current_task.result(self.storage, *self.resources)
-        print(f'{self.name} finished {self.current_task.name}')
+        print(f'{self.name} finished {self.current_task.name} after {round(self.work_time, 1)}s')
         self.current_task = None
+        self.work_time = 0
+        self.task_time = 0
         print(f'Current storage: Currency:{self.storage.currency}, Foo:{len(self.storage.foo)}, '\
                 f'Bar:{len(self.storage.bar)}, Robots:{len(self.storage.robots)}')
 
@@ -131,4 +133,4 @@ if __name__ == '__main__':
                     'meaning the bot work time will be instant compared to '\
                     'real time. A speed under 1 will be faster while above 1 '\
                     'will be slower.')
-    main(parser.parse_args().speed)
+    main(abs(parser.parse_args().speed))
