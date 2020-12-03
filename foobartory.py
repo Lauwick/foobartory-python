@@ -65,7 +65,7 @@ class Robot():
         self.resources = None
 
     def choose_task(self):
-        weights = [30,20,40,1,20]
+        weights = [30,15,40,1,20]
         if not self.storage.foo or not self.storage.bar:
             weights[2] = 0
         if not self.storage.foobar:
@@ -86,9 +86,9 @@ class Robot():
         else:
             self.work_time += 0.1
             if self.work_time >= self.task_time:
-                self.complete()
+                self.complete_task()
 
-    def complete(self):
+    def complete_task(self):
         self.current_task.result(self.storage, *self.resources)
         print(f'{self.name} finished {self.current_task.name} after {round(self.work_time, 1)}s')
         self.current_task = None
@@ -109,15 +109,11 @@ class Storage:
 
 
 def main(speed):
-    print(speed)
-
-    #init states
     print('Creating initial storage. Two worket bots have been dispatched.')
     storage = Storage()
     storage.robots.append(Robot(storage))
     storage.robots.append(Robot(storage))
 
-    #event loop
     print('Worker bots have started their activities.')
     while len(storage.robots) < 30:
         for robot in storage.robots:
